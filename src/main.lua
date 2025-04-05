@@ -1,23 +1,31 @@
---[[
-
-:3
-
-]]
-
---REQUIRES--
 local SDL = require("SDL")
+local render = require("modules/render/render")
+local vector = require("modules/other/vector")
 
---REQUIRES--
-local input = require("input.lua")
-
---BLANK VARIABLE DEFS--
-local win = nil
---BLANK VARIABLE DEFS---
+local raycast = render.raycast
 
 ScreenWidth = 640
 ScreenHeight = 480
 Title = "Gaycast"
 
+local win = nil
+local render = nil
+
+local currentMap = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 1, 1, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+}
+local playerPosition = vector.newVector(5, 5)
+local playerDirection = vector.newVector(0, 0)
+local cameraPlane = vector.newVector(0, 0) --should be perp to playerDirection
 local running = false
 
 local function init()
@@ -29,6 +37,8 @@ local function init()
         x = 126,
         y = 126
     })
+    render = assert(SDL.createRenderer(win, 0, 0))
+    render:setDrawColor({255, 0, 0})
 
     running = true
 end
@@ -40,6 +50,8 @@ local function main()
                 running = false
             end
         end
+        render:clear()
+        raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane, currentMap)
     end
 end
 
