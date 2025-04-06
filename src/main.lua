@@ -13,19 +13,19 @@ local render = nil
 
 local currentMap = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 1, 1, 1, 0, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 }
 local playerPosition = vector.newVector(5, 5)
-local playerDirection = vector.newVector(0, 0)
-local cameraPlane = vector.newVector(0, 0) --should be perp to playerDirection
+local playerDirection = vector.newVector(-1, 0)
+local cameraPlane = vector.newVector(0, 0.66) --should be perp to playerDirection
 local running = false
 
 local function init()
@@ -38,20 +38,25 @@ local function init()
         y = 126
     })
     render = assert(SDL.createRenderer(win, 0, 0))
-    render:setDrawColor({255, 0, 0})
 
     running = true
 end
 
 local function main()
     while running do
+        render:setDrawColor({r = 0, g = 0, b = 0})
+
         for e in SDL.pollEvent() do
             if e.type == SDL.event.Quit then
                 running = false
             end
         end
         render:clear()
+
+        render:setDrawColor({r = 255, g = 0, b = 0})
         raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane, currentMap)
+
+        render:present()
     end
 end
 
