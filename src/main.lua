@@ -1,6 +1,7 @@
 local SDL = require("SDL")
 local render = require("modules/render/render")
 local vector = require("modules/other/vector")
+local player = require("modules/other/player")
 
 local raycast = render.raycast
 
@@ -10,6 +11,8 @@ Title = "Gaycast"
 
 local win = nil
 local render = nil
+local playerMoveSpeed = nil
+local playerRotationSpeed = nil
 
 local currentMap = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -23,7 +26,7 @@ local currentMap = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 }
-local playerPosition = vector.newVector(5, 5)
+local playerPosition = vector.newVector(5, 7)
 local playerDirection = vector.newVector(-1, 0)
 local cameraPlane = vector.newVector(0, 0.66) --should be perp to playerDirection
 local running = false
@@ -44,7 +47,7 @@ end
 
 local function main()
     while running do
-        render:setDrawColor({r = 0, g = 0, b = 0})
+        local startTime = SDL.getTicks()
 
         for e in SDL.pollEvent() do
             if e.type == SDL.event.Quit then
@@ -53,9 +56,21 @@ local function main()
         end
         render:clear()
 
-        render:setDrawColor({r = 255, g = 0, b = 0})
         raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane, currentMap)
+        render:setDrawColor({r = 0, g = 0, b = 0})
 
+        local frameTime = (SDL.getTicks() - startTime) / 1000
+        local fps = 1 / frameTime
+
+        playerMoveSpeed = 1.0 * frameTime
+        playerRotationSpeed = 3.0 * frameTime
+
+        keys = SDL.getKeyboardState()
+
+        playerPosition = player.doMovement(keys, playerPosition, playerDirection, playerMoveSpeed, currentMap)
+        playerDirection, cameraPlane = player.doRotation(keys, playerDirection, cameraPlane, playerRotationSpeed)
+
+        print(fps)
         render:present()
     end
 end

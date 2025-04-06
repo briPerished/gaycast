@@ -5,20 +5,28 @@ local math = require("math")
 local vector = require("modules/other/vector")
 
 local function getRayDirection(playerDirection, cameraPlane, i)
-    local cameraX = 2 * (i - 1) / ScreenWidth - 1
+    local cameraX = 2 * (i / ScreenWidth) - 1
     return vector.addVector(vector.multiplyVectorWithNumber(cameraPlane, cameraX), playerDirection)
 end
 
 local function getSideDistance(playerPosition, mapPosition, rayDirection, deltaDistance, step)
-    local stepOffsetHack = vector.newVector(0, 0)
     local sideDistance = vector.newVector(0, 0)
     
-    step.x = (rayDirection.x < 0 and 1) or -1
-    if step.x > 0 then stepOffsetHack.x = 1 end
-    sideDistance.x = (playerPosition.x - (mapPosition.x + step.x)) * deltaDistance.x
-    step.y = (rayDirection.y < 0 and 1) or -1
-    if step.y > 0 then stepOffsetHack.y = 1 end
-    sideDistance.y = (playerPosition.y - (mapPosition.y * step.y)) * deltaDistance.y
+    if rayDirection.x < 0 then
+        step.x = -1
+        sideDistance.x = (playerPosition.x - mapPosition.x) * deltaDistance.x
+    else
+        step.x = 1
+        sideDistance.x = (mapPosition.x + 1.0 - playerPosition.x) * deltaDistance.x
+    end
+
+    if rayDirection.y < 0 then
+        step.y = -1
+        sideDistance.y = (playerPosition.y - mapPosition.y) * deltaDistance.y
+    else
+        step.y = 1
+        sideDistance.y = (mapPosition.y + 1.0 - playerPosition.y) * deltaDistance.y
+    end
 
     return sideDistance, step
 end
@@ -77,7 +85,9 @@ function raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane,
         end
         --DDA!--
 
+        
         local perpindicularWallDistance = getPerpindicularWallDistance(side, sideDistance, deltaDistance)
+        render:setDrawColor({r = 255, g = 0, b = 0})
         drawWall(render, perpindicularWallDistance, i)
     end
 end
