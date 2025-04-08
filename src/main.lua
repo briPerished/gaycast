@@ -1,9 +1,11 @@
 local SDL = require("SDL")
 local render = require("modules/render/render")
+local gui = require("modules/gui/gui")
 local vector = require("modules/other/vector")
 local player = require("modules/other/player")
 
 local raycast = render.raycast
+local debugMode = gui.debugMode
 
 ScreenWidth = 640
 ScreenHeight = 480
@@ -16,12 +18,12 @@ local playerRotationSpeed = nil
 
 local currentMap = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+    {1, 1, 1, 2, 0, 0, 0, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
@@ -38,39 +40,39 @@ local function init()
         width = ScreenWidth,
         height = ScreenHeight,
         x = 126,
-        y = 126
+        y = 126,
     })
     render = assert(SDL.createRenderer(win, 0, 0))
 
     running = true
 end
 
+--TODO: reorganize main loop its kinda a mess rn
 local function main()
     while running do
         local startTime = SDL.getTicks()
+        local keys = SDL.getKeyboardState()
 
-        for e in SDL.pollEvent() do
-            if e.type == SDL.event.Quit then
+        for event in SDL.pollEvent() do
+            if event.type == SDL.event.Quit then
                 running = false
             end
         end
         render:clear()
 
         raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane, currentMap)
-        render:setDrawColor({r = 0, g = 0, b = 0})
 
         local frameTime = (SDL.getTicks() - startTime) / 1000
         local fps = 1 / frameTime
 
+        render:setDrawColor({r = 0, g = 0, b = 0}) --reset draw color
+
         playerMoveSpeed = 1.0 * frameTime
         playerRotationSpeed = 3.0 * frameTime
 
-        keys = SDL.getKeyboardState()
-
-        playerPosition = player.doMovement(keys, playerPosition, playerDirection, playerMoveSpeed, currentMap)
+        playerPosition = player.doMovement(keys, playerPosition, playerDirection, cameraPlane, playerMoveSpeed, currentMap)
         playerDirection, cameraPlane = player.doRotation(keys, playerDirection, cameraPlane, playerRotationSpeed)
 
-        print(fps)
         render:present()
     end
 end

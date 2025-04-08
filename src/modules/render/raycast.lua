@@ -39,10 +39,13 @@ local function getPerpindicularWallDistance(side, sideDistance, deltaDistance)
     end
 end
 
-local function drawWall(render, perpindicularWallDistance, i)
+local function drawWall(render, perpindicularWallDistance, i, side)
     local wallHeight = math.floor(ScreenHeight / perpindicularWallDistance)
     local wallStart = -wallHeight / 2  + ScreenHeight / 2
     local wallEnd = wallHeight / 2 + ScreenHeight / 2
+    local drawColor = {r = 255, g = 0, b = 0}
+
+    if side == 0 then drawColor.r = drawColor.r / 2 end
 
     if wallStart < 0 then wallStart = 0 end
     if wallEnd >= ScreenHeight then wallEnd = ScreenHeight - 1 end
@@ -54,6 +57,7 @@ local function drawWall(render, perpindicularWallDistance, i)
         y2 = wallEnd
     }
 
+    render:setDrawColor(drawColor)
     render:drawLine(line)
 end
 
@@ -87,8 +91,7 @@ function raycast.doRaycast(render, playerPosition, playerDirection, cameraPlane,
 
         
         local perpindicularWallDistance = getPerpindicularWallDistance(side, sideDistance, deltaDistance)
-        render:setDrawColor({r = 255, g = 0, b = 0})
-        drawWall(render, perpindicularWallDistance, i)
+        drawWall(render, perpindicularWallDistance, i, side)
     end
 end
 
