@@ -1,6 +1,7 @@
 --TODO: make my OWN surface bindings bcuz the built in ones have nothing i need
 
 local SDL = require("SDL")
+local ttf = require("SDL.ttf")
 local render = require("modules/render/render")
 local gui = require("modules/gui/gui")
 local vector = require("modules/other/vector")
@@ -16,6 +17,7 @@ Title = "Gaycast"
 
 local win = nil
 local render = nil
+local font = nil
 local textures = nil
 local playerMoveSpeed = nil
 local playerRotationSpeed = nil
@@ -36,6 +38,9 @@ local currentMap = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 }
+local fpsRect = {
+    x = 0, y = 0, w = 100, h = 25
+}
 local playerPosition = vector.newVector(5, 7)
 local playerDirection = vector.newVector(-1, 0)
 local cameraPlane = vector.newVector(0, 0.66) --should be perp to playerDirection
@@ -50,8 +55,10 @@ local function init()
         x = 126,
         y = 126,
     })
+    assert(ttf.init())
     render = assert(SDL.createRenderer(win, 0, 0))
-    textures = textureManager.createTextureTables(texturePaths)
+    font = assert(ttf.open("assets/fonts/tahoma.ttf", 12))
+    --textures = textureManager.createTextureTables(texturePaths)
 
     running = true
 end
@@ -73,6 +80,10 @@ local function main()
 
         local frameTime = (SDL.getTicks() - startTime) / 1000
         local fps = 1 / frameTime
+
+        local fpsSurface = font:renderText(tostring(fps), "solid", {r = 255, g = 255, b = 255})
+        local fpsTexture = render:createTextureFromSurface(fpsSurface)
+        render:copy(fpsTexture, nil, fpsRect)
 
         render:setDrawColor({r = 0, g = 0, b = 0}) --reset draw color
 
