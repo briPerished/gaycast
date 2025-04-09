@@ -1,3 +1,5 @@
+--TODO: make my OWN surface bindings bcuz the built in ones have nothing i need
+
 local SDL = require("SDL")
 local render = require("modules/render/render")
 local gui = require("modules/gui/gui")
@@ -5,6 +7,7 @@ local vector = require("modules/other/vector")
 local player = require("modules/other/player")
 
 local raycast = render.raycast
+local textureManager = render.textureManager
 local debugMode = gui.debugMode
 
 ScreenWidth = 640
@@ -13,9 +16,14 @@ Title = "Gaycast"
 
 local win = nil
 local render = nil
+local textures = nil
 local playerMoveSpeed = nil
 local playerRotationSpeed = nil
 
+local texturePaths = {
+    "assets/images/blue.png",
+    "assets/images/stone.png"
+}
 local currentMap = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
@@ -43,6 +51,7 @@ local function init()
         y = 126,
     })
     render = assert(SDL.createRenderer(win, 0, 0))
+    textures = textureManager.createTextureTables(texturePaths)
 
     running = true
 end
